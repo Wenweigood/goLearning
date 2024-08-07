@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"time"
@@ -34,7 +33,7 @@ func fetch(url string, ch chan<- string) {
 		return
 	}
 	//ioutil.Discard是一个特殊的io.Writer接口，丢弃所有写入数据（这里是供测试，只考虑字节数）
-	nbytes, err := io.Copy(ioutil.Discard, resp.Body)
+	data, err := io.ReadAll(resp.Body)
 	resp.Body.Close() // don't leak resources
 	if err != nil {
 		//Sprintf是构造字符串（并非直接打印出来）
@@ -43,5 +42,5 @@ func fetch(url string, ch chan<- string) {
 	}
 	//消耗了多少时间
 	secs := time.Since(start).Seconds()
-	ch <- fmt.Sprintf("%.2fs  %7d  %s", secs, nbytes, url)
+	ch <- fmt.Sprintf("time consumed: [%.2fs]  data: [%s]", secs, data)
 }
